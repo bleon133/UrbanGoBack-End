@@ -69,11 +69,12 @@ public class GestorUsuarioServiceImpl implements GestorUsuarioService {
         if (req.userType() == TipoUsuario.DOMICILIARIO) {
             var dom = Domiciliario.builder()
                     .usuario(entity)
-                    .disponibilidadLaboral(req.disponibilidadLaboral())
+                    .disponibilidadLaboral(Boolean.TRUE.equals(req.disponibilidadLaboral()))
                     .contactoEmergencia(req.contactoEmergencia())
                     .numeroEmergencia(req.numeroEmergencia())
                     .numeroLicencia(req.numeroLicencia())
                     .categoriaMoto(req.categoriaMoto())
+                    .categoriaVehiculo(req.categoriaVehiculo())
                     .experienciaPrevia(req.experienciaPrevia())
                     .build();
             domiciliarios.save(dom);
@@ -89,7 +90,13 @@ public class GestorUsuarioServiceImpl implements GestorUsuarioService {
     }
 
     @Override
-    public void delete(Integer id) { usuarios.deleteById(id); }
+    public void delete(Integer id) {
+        var usuario = usuarios.findById(id).orElseThrow();
+        if (usuario.getTipoUsuario() == TipoUsuario.DOMICILIARIO) {
+            domiciliarios.deleteById(id);
+        }
+        usuarios.delete(usuario);
+    }
 
     @Override
     public void setLicensePhotos(Integer idUsuario, String front, String back) {
@@ -137,11 +144,12 @@ public class GestorUsuarioServiceImpl implements GestorUsuarioService {
                 u.getTipoUsuario(),
                 u.getEstado(),
                 u.getFotografia(),
-                d != null ? d.getDisponibilidadLaboral() : null,
+                d != null ? Boolean.valueOf(d.isDisponibilidadLaboral()) : null,
                 d != null ? d.getContactoEmergencia() : null,
                 d != null ? d.getNumeroEmergencia() : null,
                 d != null ? d.getNumeroLicencia() : null,
                 d != null ? d.getCategoriaMoto() : null,
+                d != null ? d.getCategoriaVehiculo() : null,
                 d != null ? d.getExperienciaPrevia() : null,
                 d != null ? d.getFotoLicenciaFrontal() : null,
                 d != null ? d.getFotoLicenciaPosterior() : null

@@ -23,8 +23,9 @@ public class Domiciliario {
     @JoinColumn(name = "id_usuario")
     private Usuario usuario;
 
-    @Column(name = "disponibilidad_laboral", columnDefinition = "TEXT")
-    private String disponibilidadLaboral;
+    @Column(name = "disponibilidad_laboral", nullable = false)
+    @Builder.Default
+    private boolean disponibilidadLaboral = false;
 
     @Column(name = "contacto_emergencia", length = 150)
     private String contactoEmergencia;
@@ -38,6 +39,9 @@ public class Domiciliario {
     @Column(name = "categoria_moto", length = 10)
     private String categoriaMoto;
 
+    @Column(name = "categoria_vehiculo", length = 30)
+    private String categoriaVehiculo;
+
     @Column(name = "experiencia_previa", columnDefinition = "TEXT")
     private String experienciaPrevia;
 
@@ -50,4 +54,3 @@ public class Domiciliario {
     @Column(name = "calificacion", precision = 3, scale = 2)
     private BigDecimal calificacion;
 }
-

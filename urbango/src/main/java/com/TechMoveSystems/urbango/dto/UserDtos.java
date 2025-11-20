@@ -31,11 +31,12 @@ public class UserDtos {
             EstadoUsuario estado,
             String profilePhoto,
             // Domiciliario
-            String disponibilidadLaboral,
+            Boolean disponibilidadLaboral,
             String contactoEmergencia,
             String numeroEmergencia,
             String numeroLicencia,
             String categoriaMoto,
+            String categoriaVehiculo,
             String experienciaPrevia,
             String fotoLicenciaFrontal,
             String fotoLicenciaPosterior
@@ -54,11 +55,12 @@ public class UserDtos {
             @NotNull TipoUsuario userType,
             // optional photo path will be set by server when file is received
             // Domiciliario
-            String disponibilidadLaboral,
+            Boolean disponibilidadLaboral,
             String contactoEmergencia,
             String numeroEmergencia,
             String numeroLicencia,
             String categoriaMoto,
+            String categoriaVehiculo,
             String experienciaPrevia
     ) { }
     // Dirección opcional (para CLIENTE u otros)
