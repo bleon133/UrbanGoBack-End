@@ -25,6 +25,9 @@ public class TarifaVehiculo {
     @Column(name = "tarifa_hora", nullable = false, precision = 10, scale = 2)
     private BigDecimal tarifaHora;
 
+    @Column(name = "tarifa_dia", precision = 10, scale = 2)
+    private BigDecimal tarifaDia;
+
     @Column(name = "tarifa_semana", precision = 10, scale = 2)
     private BigDecimal tarifaSemana;
 

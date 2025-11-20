@@ -55,6 +55,7 @@ public class TarifaVehiculoServiceImpl implements TarifaVehiculoService {
     private void apply(TarifaVehiculo entity, CreateOrUpdateTarifaVehiculoRequest req) {
         entity.setTipoVehiculo(req.tipoVehiculo());
         entity.setTarifaHora(req.tarifaHora());
+        entity.setTarifaDia(req.tarifaDia());
         entity.setTarifaSemana(req.tarifaSemana());
         entity.setDepositoGarantia(req.depositoGarantia());
     }
@@ -64,6 +65,7 @@ public class TarifaVehiculoServiceImpl implements TarifaVehiculoService {
                 entity.getIdTarifaVehiculo(),
                 entity.getTipoVehiculo(),
                 entity.getTarifaHora(),
+                entity.getTarifaDia(),
                 entity.getTarifaSemana(),
                 entity.getDepositoGarantia()
         );
@@ -74,6 +76,7 @@ public class TarifaVehiculoServiceImpl implements TarifaVehiculoService {
                 entity.getIdTarifaVehiculo(),
                 entity.getTipoVehiculo(),
                 entity.getTarifaHora(),
+                entity.getTarifaDia(),
                 entity.getTarifaSemana(),
                 entity.getDepositoGarantia()
         );

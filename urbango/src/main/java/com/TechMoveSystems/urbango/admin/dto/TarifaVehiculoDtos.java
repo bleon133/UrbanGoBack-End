@@ -11,6 +11,7 @@ public class TarifaVehiculoDtos {
             Integer id,
             String tipoVehiculo,
             BigDecimal tarifaHora,
+            BigDecimal tarifaDia,
             BigDecimal tarifaSemana,
             BigDecimal depositoGarantia
     ) {}
@@ -19,6 +20,7 @@ public class TarifaVehiculoDtos {
             Integer id,
             String tipoVehiculo,
             BigDecimal tarifaHora,
+            BigDecimal tarifaDia,
             BigDecimal tarifaSemana,
             BigDecimal depositoGarantia
     ) {}
@@ -26,6 +28,7 @@ public class TarifaVehiculoDtos {
     public record CreateOrUpdateTarifaVehiculoRequest(
             @NotBlank @Size(max = 30) String tipoVehiculo,
             @NotNull BigDecimal tarifaHora,
+            BigDecimal tarifaDia,
             BigDecimal tarifaSemana,
             BigDecimal depositoGarantia
     ) {}

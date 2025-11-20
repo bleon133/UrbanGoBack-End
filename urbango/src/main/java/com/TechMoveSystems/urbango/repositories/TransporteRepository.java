@@ -10,10 +10,10 @@ import java.util.Optional;
 public interface TransporteRepository extends JpaRepository<Transporte, Integer> {
 
     @Override
-    @EntityGraph(attributePaths = {"sucursal"})
+    @EntityGraph(attributePaths = {"sucursal", "tipoTransporte"})
     Optional<Transporte> findById(Integer id);
 
     @Override
-    @EntityGraph(attributePaths = {"sucursal"})
+    @EntityGraph(attributePaths = {"sucursal", "tipoTransporte"})
     List<Transporte> findAll();
 }
