@@ -17,8 +17,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -107,16 +110,24 @@ public class SucursalesServiceImpl implements SucursalesService {
             sucursales.saveAndFlush(sucursal);
         }
         horarios.deleteBySucursal_IdSucursal(sucursal.getIdSucursal());
+        horarios.flush();
         if (request.diasAtencion() == null || request.diasAtencion().isEmpty()) {
             return;
         }
         LocalTime apertura = parseTime(request.horarioApertura());
         LocalTime cierre = parseTime(request.horarioCierre());
+        Set<String> diasProcesados = new HashSet<>();
         for (String dia : request.diasAtencion()) {
-            if (dia == null || dia.isBlank()) continue;
+            if (dia == null) continue;
+            String trimmed = dia.trim();
+            if (trimmed.isEmpty()) continue;
+            String normalizedKey = trimmed.toLowerCase(Locale.ROOT);
+            if (!diasProcesados.add(normalizedKey)) {
+                continue; // evitar duplicados que violan la restricción única
+            }
             var horario = new HorarioAtencion();
             horario.setSucursal(sucursal);
-            horario.setDiaSemana(dia);
+            horario.setDiaSemana(trimmed);
             horario.setHoraApertura(apertura);
             horario.setHoraCierre(cierre);
             horarios.save(horario);
