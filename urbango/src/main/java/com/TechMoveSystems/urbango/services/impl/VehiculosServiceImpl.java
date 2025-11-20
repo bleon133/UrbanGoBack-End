@@ -2,8 +2,10 @@ package com.TechMoveSystems.urbango.services.impl;
 
 import com.TechMoveSystems.urbango.admin.dto.VehicleDtos.*;
 import com.TechMoveSystems.urbango.models.Sucursal;
+import com.TechMoveSystems.urbango.models.TipoTransporte;
 import com.TechMoveSystems.urbango.models.Transporte;
 import com.TechMoveSystems.urbango.repositories.SucursalRepository;
+import com.TechMoveSystems.urbango.repositories.TipoTransporteRepository;
 import com.TechMoveSystems.urbango.repositories.TransporteRepository;
 import com.TechMoveSystems.urbango.services.VehiculosService;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,7 @@ public class VehiculosServiceImpl implements VehiculosService {
 
     private final TransporteRepository transportes;
     private final SucursalRepository sucursales;
+    private final TipoTransporteRepository tipos;
 
     @Override
     @Transactional(readOnly = true)
@@ -28,7 +31,11 @@ public class VehiculosServiceImpl implements VehiculosService {
         final String searchFilter = search != null ? search.trim().toLowerCase(Locale.ROOT) : null;
 
         return transportes.findAll().stream()
-                .filter(t -> tipoFilter == null || (t.getTipoVehiculo() != null && t.getTipoVehiculo().equalsIgnoreCase(tipoFilter)))
+                .filter(t -> {
+                    if (tipoFilter == null) return true;
+                    var tt = t.getTipoTransporte();
+                    return tt != null && tt.getNombre() != null && tt.getNombre().toLowerCase(Locale.ROOT).equals(tipoFilter);
+                })
                 .filter(t -> estadoFilter == null || (t.getEstado() != null && t.getEstado().equalsIgnoreCase(estadoFilter)))
                 .filter(t -> sucursalId == null || (t.getSucursal() != null && sucursalId.equals(t.getSucursal().getIdSucursal())))
                 .filter(t -> {
@@ -52,8 +59,9 @@ public class VehiculosServiceImpl implements VehiculosService {
     @Transactional
     public VehicleDetail create(CreateVehicleRequest request, String photoPath) {
         var sucursal = getSucursal(request.sucursalId());
+        var tipo = getTipoTransporte(request.tipoVehiculo());
         var entity = new Transporte();
-        applyRequest(entity, request, sucursal, photoPath);
+        applyRequest(entity, request, sucursal, tipo, photoPath);
         transportes.save(entity);
         return toDetail(entity);
     }
@@ -63,7 +71,8 @@ public class VehiculosServiceImpl implements VehiculosService {
     public VehicleDetail update(Integer id, CreateVehicleRequest request, String photoPath) {
         var entity = transportes.findById(id).orElseThrow();
         var sucursal = getSucursal(request.sucursalId());
-        applyRequest(entity, request, sucursal, photoPath);
+        var tipo = getTipoTransporte(request.tipoVehiculo());
+        applyRequest(entity, request, sucursal, tipo, photoPath);
         transportes.save(entity);
         return toDetail(entity);
     }
@@ -73,9 +82,9 @@ public class VehiculosServiceImpl implements VehiculosService {
         transportes.deleteById(id);
     }
 
-    private void applyRequest(Transporte entity, CreateVehicleRequest request, Sucursal sucursal, String photoPath) {
+    private void applyRequest(Transporte entity, CreateVehicleRequest request, Sucursal sucursal, TipoTransporte tipo, String photoPath) {
         entity.setSucursal(sucursal);
-        entity.setTipoVehiculo(request.tipoVehiculo());
+        entity.setTipoTransporte(tipo);
         entity.setMarca(request.marca());
         entity.setModelo(request.modelo());
         entity.setAnio(request.anio());
@@ -92,7 +101,7 @@ public class VehiculosServiceImpl implements VehiculosService {
     private VehicleSummary toSummary(Transporte transporte) {
         return new VehicleSummary(
                 transporte.getIdTransporte(),
-                transporte.getTipoVehiculo(),
+                transporte.getTipoTransporte() != null ? transporte.getTipoTransporte().getNombre() : null,
                 transporte.getMarca(),
                 transporte.getModelo(),
                 transporte.getAnio(),
@@ -110,7 +119,7 @@ public class VehiculosServiceImpl implements VehiculosService {
                 transporte.getIdTransporte(),
                 transporte.getSucursal() != null ? transporte.getSucursal().getIdSucursal() : null,
                 transporte.getSucursal() != null ? transporte.getSucursal().getNombre() : null,
-                transporte.getTipoVehiculo(),
+                transporte.getTipoTransporte() != null ? transporte.getTipoTransporte().getNombre() : null,
                 transporte.getMarca(),
                 transporte.getModelo(),
                 transporte.getAnio(),
@@ -125,5 +134,13 @@ public class VehiculosServiceImpl implements VehiculosService {
 
     private Sucursal getSucursal(Integer id) {
         return sucursales.findById(id).orElseThrow(() -> new IllegalArgumentException("Sucursal no encontrada: " + id));
+    }
+
+    private TipoTransporte getTipoTransporte(String nombre) {
+        if (nombre == null || nombre.isBlank()) {
+            throw new IllegalArgumentException("El tipo de vehiculo es obligatorio");
+        }
+        return tipos.findByNombreIgnoreCase(nombre.trim())
+                .orElseGet(() -> tipos.save(TipoTransporte.builder().nombre(nombre.trim()).build()));
     }
 }

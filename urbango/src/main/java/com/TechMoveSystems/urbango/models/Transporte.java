@@ -20,11 +20,12 @@ public class Transporte {
     private Integer idTransporte;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_tipo_transporte", nullable = false)
+    private TipoTransporte tipoTransporte;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_sucursal", nullable = false)
     private Sucursal sucursal;
-
-    @Column(name = "tipo_vehiculo", nullable = false, length = 30)
-    private String tipoVehiculo;
 
     @Column(name = "marca", length = 50)
     private String marca;
