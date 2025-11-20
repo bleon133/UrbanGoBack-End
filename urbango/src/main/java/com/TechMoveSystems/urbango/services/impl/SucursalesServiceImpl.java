@@ -2,12 +2,14 @@ package com.TechMoveSystems.urbango.services.impl;
 
 import com.TechMoveSystems.urbango.admin.dto.BranchDtos.*;
 import com.TechMoveSystems.urbango.models.Barrio;
+import com.TechMoveSystems.urbango.models.CuentaBancaria;
 import com.TechMoveSystems.urbango.models.Direccion;
 import com.TechMoveSystems.urbango.models.HorarioAtencion;
 import com.TechMoveSystems.urbango.models.Sucursal;
 import com.TechMoveSystems.urbango.repositories.BarrioRepository;
 import com.TechMoveSystems.urbango.repositories.DireccionRepository;
 import com.TechMoveSystems.urbango.repositories.HorarioAtencionRepository;
+import com.TechMoveSystems.urbango.repositories.CuentaBancariaRepository;
 import com.TechMoveSystems.urbango.repositories.SucursalRepository;
 import com.TechMoveSystems.urbango.services.SucursalesService;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,7 @@ public class SucursalesServiceImpl implements SucursalesService {
     private final DireccionRepository direcciones;
     private final BarrioRepository barrios;
     private final HorarioAtencionRepository horarios;
+    private final CuentaBancariaRepository cuentasBancarias;
 
     @Override
     @Transactional(readOnly = true)
@@ -49,6 +52,7 @@ public class SucursalesServiceImpl implements SucursalesService {
         applyRequest(entity, request, photoPath);
         sucursales.save(entity);
         syncHorarios(entity, request);
+        syncCuentaBancaria(entity, request);
         return toDetail(entity);
     }
 
@@ -59,11 +63,13 @@ public class SucursalesServiceImpl implements SucursalesService {
         applyRequest(entity, request, photoPath);
         sucursales.save(entity);
         syncHorarios(entity, request);
+        syncCuentaBancaria(entity, request);
         return toDetail(entity);
     }
 
     @Override
     public void delete(Integer id) {
+        cuentasBancarias.deleteBySucursal_IdSucursal(id);
         sucursales.deleteById(id);
     }
 
@@ -115,6 +121,33 @@ public class SucursalesServiceImpl implements SucursalesService {
             horario.setHoraCierre(cierre);
             horarios.save(horario);
         }
+    }
+
+    private void syncCuentaBancaria(Sucursal sucursal, CreateOrUpdateBranchRequest request) {
+        if (sucursal.getIdSucursal() == null) {
+            sucursales.saveAndFlush(sucursal);
+        }
+
+        boolean numero = request.numeroCuenta() != null && !request.numeroCuenta().isBlank();
+        boolean tipo = request.tipoCuenta() != null && !request.tipoCuenta().isBlank();
+        boolean banco = request.bancoId() != null;
+
+        if (!numero && !tipo && !banco) {
+            cuentasBancarias.deleteBySucursal_IdSucursal(sucursal.getIdSucursal());
+            return;
+        }
+
+        if (!numero || !tipo || !banco) {
+            throw new IllegalArgumentException("La cuenta bancaria requiere número, tipo y banco.");
+        }
+
+        CuentaBancaria cuenta = cuentasBancarias.findBySucursal_IdSucursal(sucursal.getIdSucursal())
+                .orElseGet(CuentaBancaria::new);
+        cuenta.setSucursal(sucursal);
+        cuenta.setNumeroCuenta(request.numeroCuenta());
+        cuenta.setTipoCuenta(request.tipoCuenta());
+        cuenta.setIdBanco(request.bancoId());
+        cuentasBancarias.save(cuenta);
     }
 
     private LocalTime parseTime(String value) {
@@ -187,6 +220,14 @@ public class SucursalesServiceImpl implements SucursalesService {
                 .findFirst()
                 .orElse(null);
 
+        CuentaBancaria cuenta = entity.getIdSucursal() == null
+                ? null
+                : cuentasBancarias.findBySucursal_IdSucursal(entity.getIdSucursal()).orElse(null);
+        Integer cuentaId = cuenta != null ? cuenta.getIdCuenta() : null;
+        String numeroCuenta = cuenta != null ? cuenta.getNumeroCuenta() : null;
+        String tipoCuenta = cuenta != null ? cuenta.getTipoCuenta() : null;
+        Integer bancoId = cuenta != null ? cuenta.getIdBanco() : null;
+
         return new BranchDetail(
                 entity.getIdSucursal(),
                 entity.getNombre(),
@@ -209,7 +250,11 @@ public class SucursalesServiceImpl implements SucursalesService {
                 detalleDireccion,
                 horarioApertura,
                 horarioCierre,
-                diasAtencion
+                diasAtencion,
+                cuentaId,
+                numeroCuenta,
+                tipoCuenta,
+                bancoId
         );
     }
 }

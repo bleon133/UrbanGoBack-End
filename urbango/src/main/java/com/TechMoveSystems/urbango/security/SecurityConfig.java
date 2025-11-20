@@ -30,7 +30,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/auth/register", "/auth/login", "/auth/refresh", "/auth/logout", "/actuator/health").permitAll()
                         .requestMatchers("/api/payments/webhook").permitAll()
-                        .requestMatchers("/geo/**", "/photos/**").permitAll()
+                        .requestMatchers("/geo/**", "/photos/**", "/catalogos/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2

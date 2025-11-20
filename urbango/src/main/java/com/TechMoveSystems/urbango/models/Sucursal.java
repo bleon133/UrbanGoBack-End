@@ -55,5 +55,7 @@ public class Sucursal {
 
     @Column(name = "foto", columnDefinition = "TEXT")
     private String foto;
-}
 
+    @OneToOne(mappedBy = "sucursal", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private CuentaBancaria cuentaBancaria;
+}

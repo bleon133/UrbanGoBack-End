@@ -42,7 +42,11 @@ public class BranchDtos {
             String detalleDireccion,
             String horarioApertura,
             String horarioCierre,
-            List<String> diasAtencion
+            List<String> diasAtencion,
+            Integer cuentaBancariaId,
+            String numeroCuentaBancaria,
+            String tipoCuentaBancaria,
+            Integer bancoId
     ) {}
 
     public record CreateOrUpdateBranchRequest(
@@ -62,6 +66,9 @@ public class BranchDtos {
             String detalleDireccion,
             String horarioApertura,
             String horarioCierre,
-            List<String> diasAtencion
+            List<String> diasAtencion,
+            @Size(max = 100) String numeroCuenta,
+            @Size(max = 50) String tipoCuenta,
+            Integer bancoId
     ) {}
 }

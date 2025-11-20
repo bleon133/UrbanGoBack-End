@@ -30,6 +30,13 @@ public class UserDtos {
             TipoUsuario userType,
             EstadoUsuario estado,
             String profilePhoto,
+            String homeAddress,
+            String addressDetail,
+            Integer neighborhoodId,
+            String neighborhoodName,
+            Integer cityId,
+            String cityName,
+            String postalCode,
             // Domiciliario
             Boolean disponibilidadLaboral,
             String contactoEmergencia,

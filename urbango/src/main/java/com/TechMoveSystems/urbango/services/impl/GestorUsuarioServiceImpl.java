@@ -10,6 +10,7 @@ import com.TechMoveSystems.urbango.services.GestorUsuarioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,6 +30,7 @@ public class GestorUsuarioServiceImpl implements GestorUsuarioService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserDetail get(Integer id) {
         var u = usuarios.findById(id).orElseThrow();
         Domiciliario d = (u.getTipoUsuario() == TipoUsuario.DOMICILIARIO) ? domiciliarios.findById(id).orElse(null) : null;
@@ -131,6 +133,31 @@ public class GestorUsuarioServiceImpl implements GestorUsuarioService {
     }
 
     private UserDetail toDetail(Usuario u, Domiciliario d) {
+        Direccion direccion = u.getDireccion();
+        String homeAddress = null;
+        String addressDetail = null;
+        String postalCode = null;
+        Integer barrioId = null;
+        String barrioNombre = null;
+        Integer ciudadId = null;
+        String ciudadNombre = null;
+
+        if (direccion != null) {
+            homeAddress = direccion.getDireccionCompleta();
+            addressDetail = direccion.getDetalle();
+            postalCode = direccion.getCodigoPostal();
+            Barrio barrio = direccion.getBarrio();
+            if (barrio != null) {
+                barrioId = barrio.getIdBarrio();
+                barrioNombre = barrio.getNombreBarrio();
+                var ciudad = barrio.getCiudad();
+                if (ciudad != null) {
+                    ciudadId = ciudad.getIdCiudad();
+                    ciudadNombre = ciudad.getNombreCiudad();
+                }
+            }
+        }
+
         return new UserDetail(
                 u.getIdUsuario(),
                 u.getNombre(),
@@ -144,6 +171,13 @@ public class GestorUsuarioServiceImpl implements GestorUsuarioService {
                 u.getTipoUsuario(),
                 u.getEstado(),
                 u.getFotografia(),
+                homeAddress,
+                addressDetail,
+                barrioId,
+                barrioNombre,
+                ciudadId,
+                ciudadNombre,
+                postalCode,
                 d != null ? Boolean.valueOf(d.isDisponibilidadLaboral()) : null,
                 d != null ? d.getContactoEmergencia() : null,
                 d != null ? d.getNumeroEmergencia() : null,
