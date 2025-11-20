@@ -1,6 +1,7 @@
 package com.TechMoveSystems.urbango.controller;
 
 import com.TechMoveSystems.urbango.admin.dto.BranchDtos.*;
+import com.TechMoveSystems.urbango.services.ImageStorageService;
 import com.TechMoveSystems.urbango.services.SucursalesService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -10,12 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/admin/branches")
@@ -23,6 +19,7 @@ import java.util.UUID;
 public class GestorSucursalesController {
 
     private final SucursalesService service;
+    private final ImageStorageService imageStorage;
 
     @GetMapping
     @PreAuthorize("hasRole('ADMINISTRADOR')")
@@ -77,22 +74,6 @@ public class GestorSucursalesController {
     }
 
     private String storePhoto(MultipartFile file) throws IOException {
-        if (file == null || file.isEmpty()) {
-            return null;
-        }
-        String base = System.getProperty("app.files.base-dir", "photos");
-        Path dir = Paths.get(base, "sucursales");
-        Files.createDirectories(dir);
-        String original = file.getOriginalFilename();
-        String extension = "";
-        if (original != null) {
-            int idx = original.lastIndexOf('.');
-            if (idx >= 0) {
-                extension = original.substring(idx);
-            }
-        }
-        Path target = dir.resolve(UUID.randomUUID() + extension);
-        Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
-        return "sucursales/" + target.getFileName();
+        return imageStorage.storeResized(file, "sucursales", "branch");
     }
 }

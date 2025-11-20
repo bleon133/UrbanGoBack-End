@@ -1,6 +1,7 @@
 package com.TechMoveSystems.urbango.controller;
 
 import com.TechMoveSystems.urbango.admin.dto.VehicleDtos.*;
+import com.TechMoveSystems.urbango.services.ImageStorageService;
 import com.TechMoveSystems.urbango.services.VehiculosService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -10,12 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/admin/vehicles")
@@ -23,6 +19,7 @@ import java.util.UUID;
 public class GestorVehiculosController {
 
     private final VehiculosService service;
+    private final ImageStorageService imageStorage;
 
     @GetMapping
     @PreAuthorize("hasRole('ADMINISTRADOR')")
@@ -82,18 +79,6 @@ public class GestorVehiculosController {
     }
 
     private String storePhoto(MultipartFile file) throws IOException {
-        if (file == null || file.isEmpty()) return null;
-        String base = System.getProperty("app.files.base-dir", "photos");
-        Path dir = Paths.get(base, "vehiculos");
-        Files.createDirectories(dir);
-        String extension = "";
-        String original = file.getOriginalFilename();
-        if (original != null) {
-            int idx = original.lastIndexOf('.');
-            if (idx >= 0) extension = original.substring(idx);
-        }
-        Path target = dir.resolve(UUID.randomUUID() + extension);
-        Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
-        return "vehiculos/" + target.getFileName();
+        return imageStorage.storeResized(file, "vehiculos", "vehiculo");
     }
 }

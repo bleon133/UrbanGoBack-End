@@ -2,20 +2,16 @@ package com.TechMoveSystems.urbango.controller;
 
 import com.TechMoveSystems.urbango.dto.UserDtos.*;
 import com.TechMoveSystems.urbango.services.GestorUsuarioService;
+import com.TechMoveSystems.urbango.services.ImageStorageService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/admin/users")
@@ -23,6 +19,7 @@ import java.util.UUID;
 public class GestorUsuariosController {
 
     private final GestorUsuarioService service;
+    private final ImageStorageService imageStorage;
 
     @GetMapping
     @PreAuthorize("hasRole('ADMINISTRADOR')")
@@ -41,39 +38,9 @@ public class GestorUsuariosController {
             @RequestPart(value = "licenseFront", required = false) MultipartFile licenseFront,
             @RequestPart(value = "licenseBack", required = false) MultipartFile licenseBack
     ) throws IOException {
-        String relativePhotoPath = null;
-        String licenseFrontPath = null;
-        String licenseBackPath = null;
-        if (photo != null && !photo.isEmpty()) {
-            String base = System.getProperty("app.files.base-dir", "photos");
-            Path dir = Paths.get(base, "usuarios");
-            Files.createDirectories(dir);
-            String ext = StringUtils.getFilenameExtension(photo.getOriginalFilename());
-            String filename = UUID.randomUUID() + (ext != null ? ("." + ext) : "");
-            Path target = dir.resolve(filename);
-            Files.copy(photo.getInputStream(), target);
-            relativePhotoPath = "usuarios/" + filename;
-        }
-        if (licenseFront != null && !licenseFront.isEmpty()) {
-            String base = System.getProperty("app.files.base-dir", "photos");
-            Path dir = Paths.get(base, "licencias");
-            Files.createDirectories(dir);
-            String ext = StringUtils.getFilenameExtension(licenseFront.getOriginalFilename());
-            String filename = "front-" + UUID.randomUUID() + (ext != null ? ("." + ext) : "");
-            Path target = dir.resolve(filename);
-            Files.copy(licenseFront.getInputStream(), target);
-            licenseFrontPath = "licencias/" + filename;
-        }
-        if (licenseBack != null && !licenseBack.isEmpty()) {
-            String base = System.getProperty("app.files.base-dir", "photos");
-            Path dir = Paths.get(base, "licencias");
-            Files.createDirectories(dir);
-            String ext = StringUtils.getFilenameExtension(licenseBack.getOriginalFilename());
-            String filename = "back-" + UUID.randomUUID() + (ext != null ? ("." + ext) : "");
-            Path target = dir.resolve(filename);
-            Files.copy(licenseBack.getInputStream(), target);
-            licenseBackPath = "licencias/" + filename;
-        }
+        String relativePhotoPath = imageStorage.storeResized(photo, "usuarios", "user");
+        String licenseFrontPath = imageStorage.storeResized(licenseFront, "licencias", "front");
+        String licenseBackPath = imageStorage.storeResized(licenseBack, "licencias", "back");
         Integer id = service.create(data, relativePhotoPath, address);
         if ((licenseFrontPath != null || licenseBackPath != null) && data.userType().name().equals("DOMICILIARIO")) {
             service.setLicensePhotos(id, licenseFrontPath, licenseBackPath);
@@ -95,4 +62,3 @@ public class GestorUsuariosController {
         return ResponseEntity.noContent().build();
     }
 }
-
