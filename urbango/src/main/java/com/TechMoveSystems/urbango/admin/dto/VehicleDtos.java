@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 public class VehicleDtos {
 
@@ -35,7 +36,10 @@ public class VehicleDtos {
             BigDecimal velocidadMax,
             String color,
             String estado,
-            String foto
+            String foto,
+            LocalDate vencimientoTecnomecanica,
+            LocalDate vencimientoSoat,
+            LocalDate fechaMantenimientoPreventivo
     ) {}
 
     public record CreateVehicleRequest(
@@ -48,6 +52,9 @@ public class VehicleDtos {
             BigDecimal peso,
             BigDecimal velocidadMax,
             @Size(max = 30) String color,
-            @NotBlank @Size(max = 20) String estado
+            @NotBlank @Size(max = 20) String estado,
+            LocalDate vencimientoTecnomecanica,
+            LocalDate vencimientoSoat,
+            LocalDate fechaMantenimientoPreventivo
     ) {}
 }

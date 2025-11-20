@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "transportes")
@@ -53,5 +54,14 @@ public class Transporte {
 
     @Column(name = "estado", nullable = false, length = 20)
     private String estado;
+
+    @Column(name = "vencimiento_tecnomecanica")
+    private LocalDate vencimientoTecnomecanica;
+
+    @Column(name = "vencimiento_soat")
+    private LocalDate vencimientoSoat;
+
+    @Column(name = "fecha_mantenimiento_preventivo")
+    private LocalDate fechaMantenimientoPreventivo;
 }
 

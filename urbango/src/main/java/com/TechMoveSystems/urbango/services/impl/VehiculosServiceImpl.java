@@ -93,6 +93,9 @@ public class VehiculosServiceImpl implements VehiculosService {
         entity.setVelocidadMax(request.velocidadMax());
         entity.setColor(request.color());
         entity.setEstado(request.estado());
+        entity.setVencimientoTecnomecanica(request.vencimientoTecnomecanica());
+        entity.setVencimientoSoat(request.vencimientoSoat());
+        entity.setFechaMantenimientoPreventivo(request.fechaMantenimientoPreventivo());
         if (photoPath != null) {
             entity.setFoto(photoPath);
         }
@@ -128,7 +131,10 @@ public class VehiculosServiceImpl implements VehiculosService {
                 transporte.getVelocidadMax(),
                 transporte.getColor(),
                 transporte.getEstado(),
-                transporte.getFoto()
+                transporte.getFoto(),
+                transporte.getVencimientoTecnomecanica(),
+                transporte.getVencimientoSoat(),
+                transporte.getFechaMantenimientoPreventivo()
         );
     }
 

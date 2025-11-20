@@ -173,6 +173,25 @@ public class SucursalesServiceImpl implements SucursalesService {
     }
 
     private BranchSummary toSummary(Sucursal entity) {
+        Direccion direccion = entity.getDireccion();
+        String direccionCompleta = null;
+        String barrioNombre = null;
+        String ciudadNombre = null;
+        String codigoPostal = null;
+
+        if (direccion != null) {
+            direccionCompleta = direccion.getDireccionCompleta();
+            codigoPostal = direccion.getCodigoPostal();
+            var barrio = direccion.getBarrio();
+            if (barrio != null) {
+                barrioNombre = barrio.getNombreBarrio();
+                var ciudad = barrio.getCiudad();
+                if (ciudad != null) {
+                    ciudadNombre = ciudad.getNombreCiudad();
+                }
+            }
+        }
+
         return new BranchSummary(
                 entity.getIdSucursal(),
                 entity.getNombre(),
@@ -181,7 +200,11 @@ public class SucursalesServiceImpl implements SucursalesService {
                 entity.getPersonaContacto(),
                 entity.getTelefonoContacto(),
                 entity.getCorreoContacto(),
-                true
+                true,
+                direccionCompleta,
+                barrioNombre,
+                ciudadNombre,
+                codigoPostal
         );
     }
 

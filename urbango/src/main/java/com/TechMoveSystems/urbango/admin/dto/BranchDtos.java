@@ -17,7 +17,11 @@ public class BranchDtos {
             String personaContacto,
             String telefonoContacto,
             String correoContacto,
-            boolean activa
+            boolean activa,
+            String direccion,
+            String barrioNombre,
+            String ciudadNombre,
+            String codigoPostal
     ) {}
 
     public record BranchDetail(
