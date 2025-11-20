@@ -8,9 +8,11 @@ import com.TechMoveSystems.urbango.repositories.DomiciliarioRepository;
 import com.TechMoveSystems.urbango.repositories.UsuarioRepository;
 import com.TechMoveSystems.urbango.services.GestorUsuarioService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,10 +42,15 @@ public class GestorUsuarioServiceImpl implements GestorUsuarioService {
     @Override
     @org.springframework.transaction.annotation.Transactional
     public Integer create(CreateUserRequest req, String photoPath, OptionalAddress address) {
+        String normalizedEmail = req.email().trim().toLowerCase();
+        if (usuarios.existsByCorreo(normalizedEmail)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "El correo ya está registrado: " + normalizedEmail);
+        }
+
         var entity = new Usuario();
         entity.setNombre(req.firstName());
         entity.setApellidos(req.lastName());
-        entity.setCorreo(req.email().trim().toLowerCase());
+        entity.setCorreo(normalizedEmail);
         entity.setContrasena(encoder.encode(req.password()));
         entity.setTipoDocumento(req.documentType());
         entity.setNumeroDocumento(req.documentNumber());
